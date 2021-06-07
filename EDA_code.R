@@ -23,12 +23,20 @@ nfl_passing_plays %>%
  
 #when each qb scores most of their touchdowns in the game ----------------------------------- 
 nfl_passing_plays %>%
-  filter(passer_player_name==c("T.Brady", "D.Watson", "P.Mahomes", "L.Jackson", "D.Lock")) %>%
-  group_by(passer_player_name) %>%
-  #summarize(td_brady = sum(touchdown)) %>%
-  ungroup() %>%
-  ggplot(aes(x = passer_player_name, y = touchdown, fill = qtr)) +
-  geom_col()
+  filter(passer_player_name %in% c("T.Brady", "D.Watson", "P.Mahomes", "L.Jackson", "D.Lock"),
+         touchdown=="1") %>%
+  group_by(qtr, passer_player_name) %>%
+  summarize(total_TD = sum(touchdown)) %>%
+  ggplot(aes(x = passer_player_name, y = total_TD, fill = factor(qtr))) +
+  geom_col()+
+  scale_fill_brewer(palette = "Paired")+
+  theme_bw()+
+  labs(
+    title = "Touchdowns by QB in 2020",
+    x = element_blank(),
+    y = "Total Touchdowns",
+    fill = "Quarter"
+  )
 
 
 #no huddle passes vs. non no huddle passes (at what point in the game they are not huddling)----
