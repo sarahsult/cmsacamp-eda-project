@@ -44,8 +44,10 @@ nfl_passing_plays %>%
 
 #2D: KEEPING!! if a QB is hit are they more likely to throw an interception -------------------
 #Hypothesis: if QB is hit --> more likely to throw interception
-nfl_passing_plays %>%                         
-  group_by(qb_hit, interception) %>%
+nfl_passing_plays %>%  
+  filter(sack != 1) %>%                 #remove sacks because it artificially inflates 
+                                      #the value of hit/no interception
+  group_by(qb_hit, interception, complete_pass) %>%
   summarize(count = n(),
             joint_prob = count / nrow(nfl_passing_plays)) %>%
   ungroup() %>%
@@ -55,10 +57,14 @@ nfl_passing_plays %>%
   ), interception_name = case_when(
     interception == 0 ~ "No interception",
     TRUE ~ "Interception"
+  ), complete_pass = case_when(
+    complete_pass == 0 ~ "Incomplete pass",
+    TRUE ~ "Complete pass"
   )) %>%
   ggplot(aes(x=qb_hit_name, y=interception_name)) +
   geom_tile(aes(fill=count), color="white")+
   geom_text(aes(label = round(joint_prob, digits=4)), color = "white")+
+  facet_wrap(~ complete_pass, ncol=2) +
   scale_fill_viridis_b()+
   theme_bw()+
   theme(legend.position = "bottom", legend.key.width = unit(2,"cm")) +
@@ -68,7 +74,7 @@ nfl_passing_plays %>%
     title = "Interception Not More Likely When Hit",
     caption = "Data courtesy of nflfastR"
   )
-#conclusion: NOT actually true!
+#conclusion: incomplete passes are more common, but of those interception is not more likely
 
 
 #2D: when each qb scores most of their touchdowns in the game ----------------------------------- 
