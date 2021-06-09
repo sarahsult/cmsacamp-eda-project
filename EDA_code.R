@@ -98,7 +98,6 @@ nfl_passing_plays %>%
 
 
 
-
 #2D: no huddle passes vs. non no huddle passes ------------------------------------------------
 #Hypothesis: no huddle plays are more successful b/c you can exploit defensive line
 nfl_passing_plays %>%
@@ -106,6 +105,8 @@ nfl_passing_plays %>%
   geom_bar(position = "dodge") +
   theme_bw()
   
+
+
 
 
 
@@ -144,10 +145,15 @@ nfl_passing_plays %>%
 
 
 #2D: Yards gained based on pass length ------------------------------------------------------
-#Hypothesis: ?
+#Hypothesis: short over long passes are more successful
 nfl_passing_plays %>%
-  ggplot(aes (x = play_id, y = yards_gained)) +
-  geom_point() +
+  filter(!is.na(pass_length), complete_pass == 1) %>%
+  ggplot(aes (x = play_id, y = yards_after_catch, color = yards_gained)) +
+  geom_point(alpha = .2) +
   theme_bw() +
+  scale_colour_viridis_b()+
   facet_wrap(~ pass_length)
+
+#conclusion: Short passes lead to more yards after catch / more complete passes?? But less 
+  #total yards than successful deep passes (duh)
 
