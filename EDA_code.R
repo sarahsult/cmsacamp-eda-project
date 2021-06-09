@@ -5,7 +5,7 @@ nfl_passing_plays<-as_tibble(nfl_passing_plays)
 head(nfl_passing_plays)
 
 
-# 2D: Downs and yards --------------------------------------------------------------------------
+# 2D: NOT USING Downs and yards --------------------------------------------------------------------------
 nfl_passing_plays %>%
   ggplot(aes(x=down, y=yards_gained)) +
   geom_point() +
@@ -31,7 +31,7 @@ nfl_passing_plays %>%
 
 
 
-#1D: distribution of total yards ---------------------------------------------------------------
+#1D: NOT USING distribution of total yards ---------------------------------------------------------------
 #Hypothesis: ??
 nfl_passing_plays %>%
   ggplot(aes(x=yards_gained))+
@@ -77,7 +77,7 @@ nfl_passing_plays %>%
 #conclusion: incomplete passes are more common, but of those interception is not more likely
 
 
-#2D: when each qb scores most of their touchdowns in the game ----------------------------------- 
+#2D: NOT USING when each qb scores most of their touchdowns in the game ----------------------------------- 
 #Hypothesis: ??
 nfl_passing_plays %>%
   filter(passer_player_name %in% c("T.Brady", "D.Watson", "P.Mahomes", "L.Jackson", "D.Lock"),
@@ -98,7 +98,7 @@ nfl_passing_plays %>%
 
 
 
-#2D: no huddle passes vs. non no huddle passes ------------------------------------------------
+#2D: NOT USING no huddle passes vs. non no huddle passes ------------------------------------------------
 #Hypothesis: no huddle plays are more successful b/c you can exploit defensive line
 nfl_passing_plays %>%
   ggplot(aes(x=no_huddle, fill = complete_pass)) +  #kind of expected this to have 4 bars
@@ -144,7 +144,7 @@ nfl_passing_plays %>%
   theme(legend.position = "bottom")
 
 
-#win probability added and completed passes ---------------------------------------------------
+# NOT USING win probability added and completed passes ---------------------------------------------------
 # nfl_passing_plays %>%
 #   filter(posteam == "KC") %>%
 #   group_by(posteam, game_id) %>%
