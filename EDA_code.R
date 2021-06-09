@@ -111,6 +111,21 @@ nfl_passing_plays %>%
 
 
 
+#huddle no huddle and yards gained -----------------------------------------------------------
+#Hypothesis: no huddle plays are more successful b/c you can exploit defensive line
+nfl_passing_plays %>%
+  mutate(no_huddle = case_when(
+    no_huddle == 0 ~ "Huddle",
+    TRUE ~ "No huddle"
+  )) %>%
+  ggplot(aes(x=play_id, y= yards_gained)) +
+  geom_point(alpha = .2) +
+  theme_bw() +
+  facet_wrap(~ no_huddle)
+
+#conclusion: how can we tell if there is a difference or if there is just more data points?
+
+
 #Clustering?: air yards and expected points added ---------------------------------------------
 nfl_passing_plays %>%
   ggplot(aes(x=air_yards, y=epa, color = complete_pass))+
