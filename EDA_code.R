@@ -76,6 +76,25 @@ nfl_passing_plays %>%
   )
 #conclusion: incomplete passes are more common, but of those interception is not more likely
 
+#another way of asking this is of the interceptions, was a player hit more than not?
+#might not actually be giving me what I want because I went interception --> qb hit instead of
+  #once they're hit what happens
+nfl_passing_plays %>%
+  filter(interception == 1) %>%
+  group_by(qb_hit) %>%
+  summarize(count = n(),
+            joint_prob = count / nrow(nfl_passing_plays)) %>%
+  ungroup() %>%
+  mutate(qb_hit_name = case_when(
+    qb_hit == 0 ~ "No hit",
+    TRUE ~ "Hit"
+  )) %>%
+  ggplot(aes(x=qb_hit_name, y = joint_prob)) +
+  geom_col()+
+  theme_bw()
+
+#conclusion: still shows for all interceptions, more likely the qb wasn't hit
+
 
 #2D: NOT USING when each qb scores most of their touchdowns in the game ----------------------------------- 
 #Hypothesis: ??
