@@ -113,7 +113,7 @@ nfl_passing_plays %>%
 #Clustering?: air yards and expected points added ---------------------------------------------
 nfl_passing_plays %>%
   ggplot(aes(x=air_yards, y=epa, color = complete_pass))+
-  geom_point()+
+  geom_point(alpha = .3)+
   theme_bw()
 
 
