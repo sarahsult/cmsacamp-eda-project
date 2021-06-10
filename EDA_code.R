@@ -76,25 +76,6 @@ nfl_passing_plays %>%
   )
 #conclusion: incomplete passes are more common, but of those interception is not more likely
 
-#another way of asking this is of the interceptions, was a player hit more than not?
-#might not actually be giving me what I want because I went interception --> qb hit instead of
-  #once they're hit what happens
-nfl_passing_plays %>%
-  filter(interception == 1) %>%
-  group_by(qb_hit) %>%
-  summarize(count = n(),
-            joint_prob = count / nrow(nfl_passing_plays)) %>%
-  ungroup() %>%
-  mutate(qb_hit_name = case_when(
-    qb_hit == 0 ~ "No hit",
-    TRUE ~ "Hit"
-  )) %>%
-  ggplot(aes(x=qb_hit_name, y = joint_prob)) +
-  geom_col()+
-  theme_bw()
-
-#conclusion: still shows for all interceptions, more likely the qb wasn't hit
-
 
 #2D: NOT USING when each qb scores most of their touchdowns in the game ----------------------------------- 
 #Hypothesis: ??
@@ -130,7 +111,7 @@ nfl_passing_plays %>%
 
 
 
-#huddle no huddle and yards gained -----------------------------------------------------------
+#NOT USING huddle no huddle and yards gained -----------------------------------------------------------
 #Hypothesis: no huddle plays are more successful b/c you can exploit defensive line
 nfl_passing_plays %>%
   mutate(no_huddle = case_when(
@@ -153,7 +134,7 @@ nfl_passing_plays %>%
 
 
 
-#2D: yards gained and pass location ----------------------------------------------------------
+#2D: NOT USING yards gained and pass location ----------------------------------------------------------
 #Hypothesis: one area of the field might be better to pass to than another??
 nfl_passing_plays %>%
   filter(!is.na(pass_location)) %>%
@@ -178,7 +159,7 @@ nfl_passing_plays %>%
 
 
 
-#2D: Yards gained based on pass length ------------------------------------------------------
+#2D: NOT USING Yards gained based on pass length ------------------------------------------------------
 #Hypothesis: short over long passes are more successful
 nfl_passing_plays %>%
   filter(!is.na(pass_length), complete_pass == 1) %>%
@@ -191,3 +172,61 @@ nfl_passing_plays %>%
 #conclusion: Short passes lead to more yards after catch / more complete passes?? But less 
   #total yards than successful deep passes (duh)
 
+#KEEPING: density on yards gained (could also just keep it at 2 graphs separated -------------
+          #by complete pass)
+#Hypothesis: what is a common number of yards for a passing play?
+
+#title and y axis label still messy
+library(patchwork)
+yards_gained_dens_total <- nfl_passing_plays %>%
+  ggplot(aes(x=yards_gained)) +
+  geom_density() +
+  geom_rug(alpha = .3) +
+  theme_bw() +
+  theme(legend.title = element_blank()) +
+  labs(x="Yards Gained",
+       y = "Num of Passing Plays")
+
+yards_gained_ecdf_total <- nfl_passing_plays %>%
+  ggplot(aes(x=yards_gained)) +
+  stat_ecdf()+
+  geom_rug(alpha = .3) +
+  theme_bw()+
+  theme(legend.title = element_blank()) +
+  labs(x="Yards Gained",
+       y = "Prop of Passing Plays")
+
+yards_gained_dens <- nfl_passing_plays %>%
+  mutate(complete_pass = case_when(
+    complete_pass == 0 ~ "Incomplete Pass",
+    TRUE ~ "Complete Pass"
+  )) %>%
+  ggplot(aes(x=yards_gained, color = complete_pass)) +
+  geom_density() +
+  geom_rug(alpha = .3) +
+  theme_bw() +
+  theme(legend.title = element_blank()) +
+  scale_color_manual(values = c("darkblue", "darkorange")) +
+  labs(x="Yards Gained",
+       y = "Num of Passing Plays")
+
+yards_gained_ecdf <- nfl_passing_plays %>%
+  mutate(complete_pass = case_when(
+    complete_pass == 0 ~ "Incomplete Pass",
+    TRUE ~ "Complete Pass"
+  )) %>%
+  ggplot(aes(x=yards_gained, color=complete_pass)) +
+  stat_ecdf()+
+  geom_rug(alpha = .3) +
+  theme_bw()+
+  theme(legend.title = element_blank()) +
+  scale_color_manual(values = c("darkblue", "darkorange")) +
+  labs(x="Yards Gained",
+       y = "Prop of Passing Plays")
+
+((yards_gained_dens_total + yards_gained_ecdf_total) / (yards_gained_dens + 
+  theme(legend.position = "none") + yards_gained_ecdf)) + plot_layout(guides="collect") +
+  plot_annotation(title="Passing Plays Don't Get Many Yards", caption = "Data courtesy of nflfastR")
+
+#conclusion: the first 50% of observed passing plays only gets you a few yards (because there 
+  # are so many incomplete plays. Of the complete plays, 50% get you 10/15 yards)
