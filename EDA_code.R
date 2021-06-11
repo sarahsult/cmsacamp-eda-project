@@ -126,11 +126,49 @@ nfl_passing_plays %>%
 #conclusion: how can we tell if there is a difference or if there is just more data points?
 
 
+
+
 #Clustering?: air yards and expected points added ---------------------------------------------
+epa_airyards_kmeans <- 
+  kmeans(dplyr::select(nfl_passing_plays, air_yards, epa),
+         algorithm = "Lloyd", centers = 3, nstart = 1)        #doesn't work either??
+
+epa_airyards_kmeanspp <-
+  kcca(dplyr::select(nfl_passing_plays, air_yards, epa),
+         k=3, control = list(initcent = "kmeanspp"))      #error???
+
 nfl_passing_plays %>%
-  ggplot(aes(x=air_yards, y=epa, color = complete_pass))+
+  mutate(play_clusters = as.factor(epa_airyards_kmeans)) %>%
+  #mutate(play_clusters = as.factor(epa_airyards_kmeanspp@cluster)) %>%
+  ggplot(aes(x=air_yards, y=epa, size = complete_pass, color = play_clusters))+
   geom_point(alpha = .3)+
-  theme_bw()
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+
+
+#NOT USING Clustering? : total hits per thrower and total completed passes -----------------------------
+#might not be great because this just shows that more play time you get hit more and then you 
+  #have more time to accumulate completed passes
+
+#trying to get the total number of throws by each person so I can create a cutoff for the graph
+nfl_passing_plays_with_total <- nfl_passing_plays %>%
+  mutate(total_throws = table(nfl_passing_plays$passer_player_name)[passer_player_name])%>%
+  
+  
+nfl_passing_plays %>%
+  group_by(passer_player_name) %>%
+  summarise(total_hit = sum(qb_hit), total_comp_pass = sum(complete_pass)) %>%
+  ungroup() %>%
+  ggplot(aes(x=total_hit, y = total_comp_pass)) +
+  geom_point() +
+  ggthemes::scale_colour_colorblind() +
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+
+
+
 
 
 
@@ -172,11 +210,12 @@ nfl_passing_plays %>%
 #conclusion: Short passes lead to more yards after catch / more complete passes?? But less 
   #total yards than successful deep passes (duh)
 
+
+
 #KEEPING: density on yards gained (could also just keep it at 2 graphs separated -------------
           #by complete pass)
 #Hypothesis: what is a common number of yards for a passing play?
 
-#title and y axis label still messy
 library(patchwork)
 yards_gained_dens_total <- nfl_passing_plays %>%
   ggplot(aes(x=yards_gained)) +
