@@ -128,24 +128,37 @@ nfl_passing_plays %>%
 
 
 
-#Clustering?: air yards and expected points added ---------------------------------------------
-epa_airyards_kmeans <- 
-  kmeans(dplyr::select(nfl_passing_plays, air_yards, epa),
-         algorithm = "Lloyd", centers = 3, nstart = 1)        #doesn't work either??
+#Clustering: air yards and expected points added ---------------------------------------------
 
-epa_airyards_kmeanspp <-
-  kcca(dplyr::select(nfl_passing_plays, air_yards, epa),
-         k=3, control = list(initcent = "kmeanspp"))      #error???
+nfl_complete_passing_plays <- nfl_passing_plays %>%
+  filter(complete_pass == 1)
+
+play_dist <- dist(dplyr::select(nfl_passing_plays, air_yards, epa))
+#play_dist <- dist(dplyr::select(nfl_complete_passing_plays, air_yards, epa))
+
+airyards_epa_complete_hclust <- hclust(play_dist, method="complete")
 
 nfl_passing_plays %>%
-  mutate(play_clusters = as.factor(epa_airyards_kmeans)) %>%
-  #mutate(play_clusters = as.factor(epa_airyards_kmeanspp@cluster)) %>%
-  ggplot(aes(x=air_yards, y=epa, size = complete_pass, color = play_clusters))+
+#nfl_complete_passing_plays %>%
+  mutate(play_clusters = as.factor(cutree(airyards_epa_complete_hclust, k=3))) %>%
+  ggplot(aes(x=air_yards, y=epa, color = play_clusters))+
   geom_point(alpha = .3)+
   theme_bw()+
   theme(legend.position = "bottom")
 
 
+
+#Clustering: yards gained and epa -----------------------------------------------------------
+play_kmeans <- kcca(dplyr::select(nfl_passing_plays, yards_gained, epa),
+                    k = 2, control = list(initcent = "kmeanspp"))
+
+nfl_passing_plays %>%
+  mutate(play_clusters = as.factor(play_kmeans@cluster)) %>%
+  ggplot(aes(x = yards_gained, y = epa, color = play_clusters)) +
+  geom_point() +
+  ggthemes::scale_color_colorblind() +
+  theme_bw() +
+  theme(legend.position = "bottom")
 
 #NOT USING Clustering? : total hits per thrower and total completed passes -----------------------------
 #might not be great because this just shows that more play time you get hit more and then you 
