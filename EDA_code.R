@@ -5,13 +5,6 @@ nfl_passing_plays<-as_tibble(nfl_passing_plays)
 head(nfl_passing_plays)
 
 
-# 2D: NOT USING Downs and yards --------------------------------------------------------------------------
-nfl_passing_plays %>%
-  ggplot(aes(x=down, y=yards_gained)) +
-  geom_point() +
-  theme_bw()
-
-
 #1D: KEEPING! QB hit+sack ---------------------------------------------------------------------
 #Hypothesis: figuring out what teams have worse offensive lines
 nfl_passing_plays %>%
@@ -28,17 +21,6 @@ nfl_passing_plays %>%
        title = "Comparing NFL Team's Offensive Line Strength",
        caption = "Data courtesy of nflfastR")
 #conclusion: ranking
-
-
-
-#1D: NOT USING distribution of total yards ---------------------------------------------------------------
-#Hypothesis: ??
-nfl_passing_plays %>%
-  ggplot(aes(x=yards_gained))+
-  stat_ecdf()+
-  theme_bw()
-
-
 
 
 
@@ -75,6 +57,122 @@ nfl_passing_plays %>%
     caption = "Data courtesy of nflfastR"
   )
 #conclusion: incomplete passes are more common, but of those interception is not more likely
+
+
+#KEEPING: density on yards gained (could also just keep it at 2 graphs separated -------------
+          #by complete pass)
+#Hypothesis: what is a common number of yards for a passing play?
+
+library(patchwork)
+yards_gained_dens_total <- nfl_passing_plays %>%
+  ggplot(aes(x=yards_gained)) +
+  geom_density() +
+  geom_rug(alpha = .3) +
+  theme_bw() +
+  theme(legend.title = element_blank()) +
+  labs(x="Yards Gained",
+       y = "Num of Passing Plays")
+
+yards_gained_ecdf_total <- nfl_passing_plays %>%
+  ggplot(aes(x=yards_gained)) +
+  stat_ecdf()+
+  geom_rug(alpha = .3) +
+  theme_bw()+
+  theme(legend.title = element_blank()) +
+  labs(x="Yards Gained",
+       y = "Prop of Passing Plays")
+
+yards_gained_dens <- nfl_passing_plays %>%
+  mutate(complete_pass = case_when(
+    complete_pass == 0 ~ "Incomplete Pass",
+    TRUE ~ "Complete Pass"
+  )) %>%
+  ggplot(aes(x=yards_gained, color = complete_pass)) +
+  geom_density() +
+  geom_rug(alpha = .3) +
+  theme_bw() +
+  theme(legend.title = element_blank()) +
+  scale_color_manual(values = c("darkblue", "darkorange")) +
+  labs(x="Yards Gained",
+       y = "Num of Passing Plays")
+
+yards_gained_ecdf <- nfl_passing_plays %>%
+  mutate(complete_pass = case_when(
+    complete_pass == 0 ~ "Incomplete Pass",
+    TRUE ~ "Complete Pass"
+  )) %>%
+  ggplot(aes(x=yards_gained, color=complete_pass)) +
+  stat_ecdf()+
+  geom_rug(alpha = .3) +
+  theme_bw()+
+  theme(legend.title = element_blank()) +
+  scale_color_manual(values = c("darkblue", "darkorange")) +
+  labs(x="Yards Gained",
+       y = "Prop of Passing Plays")
+
+((yards_gained_dens_total + yards_gained_ecdf_total) / (yards_gained_dens + 
+  theme(legend.position = "none") + yards_gained_ecdf)) + plot_layout(guides="collect") +
+  plot_annotation(title="Passing Plays Don't Get Many Yards", caption = "Data courtesy of nflfastR")
+
+#conclusion: the first 50% of observed passing plays only gets you a few yards (because there 
+  # are so many incomplete plays. Of the complete plays, 50% get you 10/15 yards)
+
+
+#KEEPING Clustering: total hits and total epa -----------------------------------------------------
+#try to collapse to one entry a thrower (could stand to get rid of people who didn't throw much)
+nfl_passing_plays_total_hits_and_epa <- nfl_passing_plays %>%
+  group_by(passer_player_name) %>%
+  summarise(total_hits = sum(qb_hit) + sum(sack),
+            total_epa = sum(epa),
+            total_throws = n())%>%
+  ungroup()
+
+nfl_passing_plays_total_hits_and_epa %>%
+  ggplot(aes(x=total_throws)) +
+  stat_ecdf()+
+  geom_vline(xintercept = 5, linetype = "dashed", color = "darkred")
+  theme_bw()
+#~37.5% of data threw less than 5 times
+  
+nfl_passing_plays_total_hits_and_epa_over5 <- nfl_passing_plays_total_hits_and_epa %>%
+  filter(total_throws > 5)
+
+play_dist_hits_and_epa <- dist(dplyr::select(nfl_passing_plays_total_hits_and_epa_over5, total_hits, total_epa))
+
+hits_epa_complete_hclust <- hclust(play_dist_hits_and_epa, method="complete")
+
+nfl_passing_plays_total_hits_and_epa_over5 %>%
+  mutate(play_clusters = as.factor(cutree(hits_epa_complete_hclust, k=3)),) %>%
+  ggplot(aes(x=total_hits, y=total_epa, color = play_clusters))+
+  geom_point(alpha = .75)+
+  theme_bw()+
+  theme(legend.position = "bottom")+
+  ggthemes::scale_color_colorblind()+
+  labs(x = "Total Hits",
+       y = "Total Expected Points Added",
+       title = "Categorizing Players by Total Hits and Total EPA",
+       caption = "Data courtesy of nflfastR")
+
+
+
+
+
+# 2D: NOT USING Downs and yards --------------------------------------------------------------------------
+nfl_passing_plays %>%
+  ggplot(aes(x=down, y=yards_gained)) +
+  geom_point() +
+  theme_bw()
+
+
+
+#1D: NOT USING distribution of total yards ---------------------------------------------------------------
+#Hypothesis: ??
+nfl_passing_plays %>%
+  ggplot(aes(x=yards_gained))+
+  stat_ecdf()+
+  theme_bw()
+
+
 
 
 #2D: NOT USING when each qb scores most of their touchdowns in the game ----------------------------------- 
@@ -128,7 +226,7 @@ nfl_passing_plays %>%
 
 
 
-#Clustering: air yards and expected points added ---------------------------------------------
+#NOT USING Clustering: air yards and expected points added ---------------------------------------------
 
 nfl_complete_passing_plays <- nfl_passing_plays %>%
   filter(complete_pass == 1)
@@ -148,7 +246,8 @@ nfl_passing_plays %>%
 
 
 
-#Clustering: yards gained and epa -----------------------------------------------------------
+
+#NOT USING Clustering: yards gained and epa -----------------------------------------------------------
 play_kmeans <- kcca(dplyr::select(nfl_passing_plays, yards_gained, epa),
                     k = 2, control = list(initcent = "kmeanspp"))
 
@@ -160,7 +259,11 @@ nfl_passing_plays %>%
   theme_bw() +
   theme(legend.position = "bottom")
 
-#NOT USING Clustering? : total hits per thrower and total completed passes -----------------------------
+
+
+
+
+#NOT USING Clustering : total hits per thrower and total completed passes -----------------------------
 #might not be great because this just shows that more play time you get hit more and then you 
   #have more time to accumulate completed passes
 
@@ -225,60 +328,3 @@ nfl_passing_plays %>%
 
 
 
-#KEEPING: density on yards gained (could also just keep it at 2 graphs separated -------------
-          #by complete pass)
-#Hypothesis: what is a common number of yards for a passing play?
-
-library(patchwork)
-yards_gained_dens_total <- nfl_passing_plays %>%
-  ggplot(aes(x=yards_gained)) +
-  geom_density() +
-  geom_rug(alpha = .3) +
-  theme_bw() +
-  theme(legend.title = element_blank()) +
-  labs(x="Yards Gained",
-       y = "Num of Passing Plays")
-
-yards_gained_ecdf_total <- nfl_passing_plays %>%
-  ggplot(aes(x=yards_gained)) +
-  stat_ecdf()+
-  geom_rug(alpha = .3) +
-  theme_bw()+
-  theme(legend.title = element_blank()) +
-  labs(x="Yards Gained",
-       y = "Prop of Passing Plays")
-
-yards_gained_dens <- nfl_passing_plays %>%
-  mutate(complete_pass = case_when(
-    complete_pass == 0 ~ "Incomplete Pass",
-    TRUE ~ "Complete Pass"
-  )) %>%
-  ggplot(aes(x=yards_gained, color = complete_pass)) +
-  geom_density() +
-  geom_rug(alpha = .3) +
-  theme_bw() +
-  theme(legend.title = element_blank()) +
-  scale_color_manual(values = c("darkblue", "darkorange")) +
-  labs(x="Yards Gained",
-       y = "Num of Passing Plays")
-
-yards_gained_ecdf <- nfl_passing_plays %>%
-  mutate(complete_pass = case_when(
-    complete_pass == 0 ~ "Incomplete Pass",
-    TRUE ~ "Complete Pass"
-  )) %>%
-  ggplot(aes(x=yards_gained, color=complete_pass)) +
-  stat_ecdf()+
-  geom_rug(alpha = .3) +
-  theme_bw()+
-  theme(legend.title = element_blank()) +
-  scale_color_manual(values = c("darkblue", "darkorange")) +
-  labs(x="Yards Gained",
-       y = "Prop of Passing Plays")
-
-((yards_gained_dens_total + yards_gained_ecdf_total) / (yards_gained_dens + 
-  theme(legend.position = "none") + yards_gained_ecdf)) + plot_layout(guides="collect") +
-  plot_annotation(title="Passing Plays Don't Get Many Yards", caption = "Data courtesy of nflfastR")
-
-#conclusion: the first 50% of observed passing plays only gets you a few yards (because there 
-  # are so many incomplete plays. Of the complete plays, 50% get you 10/15 yards)
