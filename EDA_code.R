@@ -142,8 +142,8 @@ play_dist_hits_and_epa <- dist(dplyr::select(nfl_passing_plays_total_hits_and_ep
 hits_epa_complete_hclust <- hclust(play_dist_hits_and_epa, method="complete")
 
 nfl_passing_plays_total_hits_and_epa_over5 %>%
-  mutate(play_clusters = as.factor(cutree(hits_epa_complete_hclust, k=3)),) %>%
-  ggplot(aes(x=total_hits, y=total_epa, color = play_clusters))+
+  mutate(player_clusters = as.factor(cutree(hits_epa_complete_hclust, k=3)),) %>%
+  ggplot(aes(x=total_hits, y=total_epa, color = player_clusters))+
   geom_point(alpha = .75)+
   theme_bw()+
   theme(legend.position = "bottom")+
