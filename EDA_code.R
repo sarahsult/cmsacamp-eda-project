@@ -226,6 +226,44 @@ nfl_passing_plays %>%
 
 
 
+#2D: NOT USING yards gained and pass location ----------------------------------------------------------
+#Hypothesis: one area of the field might be better to pass to than another??
+nfl_passing_plays %>%
+  filter(!is.na(pass_location)) %>%
+  ggplot(aes(x=yards_gained, color = pass_location)) +
+  geom_freqpoly()+
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+
+# NOT USING win probability added and completed passes ---------------------------------------------------
+# nfl_passing_plays %>%
+#   filter(posteam == "KC") %>%
+#   group_by(posteam, game_id) %>%
+#   mutate(total_comp_passes = sum(complete_pass)) %>%
+#   ggplot(aes(x=total_comp_passes, y=wpa, color = posteam)) +
+#   geom_point()+
+#   theme_bw()
+
+
+
+
+
+
+
+#2D: NOT USING Yards gained based on pass length ------------------------------------------------------
+#Hypothesis: short over long passes are more successful
+nfl_passing_plays %>%
+  filter(!is.na(pass_length), complete_pass == 1) %>%
+  ggplot(aes (x = play_id, y = yards_after_catch, color = yards_gained)) +
+  geom_point(alpha = .2) +
+  theme_bw() +
+  scale_colour_viridis_b()+
+  facet_wrap(~ pass_length)
+
+#conclusion: Short passes lead to more yards after catch / more complete passes?? But less 
+  #total yards than successful deep passes (duh)
+
 #NOT USING Clustering: air yards and expected points added ---------------------------------------------
 
 nfl_complete_passing_plays <- nfl_passing_plays %>%
@@ -287,44 +325,6 @@ nfl_passing_plays %>%
 
 
 
-
-#2D: NOT USING yards gained and pass location ----------------------------------------------------------
-#Hypothesis: one area of the field might be better to pass to than another??
-nfl_passing_plays %>%
-  filter(!is.na(pass_location)) %>%
-  ggplot(aes(x=yards_gained, color = pass_location)) +
-  geom_freqpoly()+
-  theme_bw()+
-  theme(legend.position = "bottom")
-
-
-# NOT USING win probability added and completed passes ---------------------------------------------------
-# nfl_passing_plays %>%
-#   filter(posteam == "KC") %>%
-#   group_by(posteam, game_id) %>%
-#   mutate(total_comp_passes = sum(complete_pass)) %>%
-#   ggplot(aes(x=total_comp_passes, y=wpa, color = posteam)) +
-#   geom_point()+
-#   theme_bw()
-
-
-
-
-
-
-
-#2D: NOT USING Yards gained based on pass length ------------------------------------------------------
-#Hypothesis: short over long passes are more successful
-nfl_passing_plays %>%
-  filter(!is.na(pass_length), complete_pass == 1) %>%
-  ggplot(aes (x = play_id, y = yards_after_catch, color = yards_gained)) +
-  geom_point(alpha = .2) +
-  theme_bw() +
-  scale_colour_viridis_b()+
-  facet_wrap(~ pass_length)
-
-#conclusion: Short passes lead to more yards after catch / more complete passes?? But less 
-  #total yards than successful deep passes (duh)
 
 
 
