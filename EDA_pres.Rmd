@@ -210,4 +210,7 @@ nfl_passing_plays_total_hits_and_epa_over5 %>%
        caption = "Data courtesy of nflfastR")
 
 ```
-
+---
+#Conclusions
+*   What we discovered...
+*   What else we might want to investigate...
