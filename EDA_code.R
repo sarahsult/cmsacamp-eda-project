@@ -71,7 +71,7 @@ yards_gained_dens_total <- nfl_passing_plays %>%
   theme_bw() +
   theme(legend.title = element_blank()) +
   labs(x="Yards Gained",
-       y = "Num of Passing Plays")
+       y = "Num of Plays")
 
 yards_gained_ecdf_total <- nfl_passing_plays %>%
   ggplot(aes(x=yards_gained)) +
@@ -80,7 +80,7 @@ yards_gained_ecdf_total <- nfl_passing_plays %>%
   theme_bw()+
   theme(legend.title = element_blank()) +
   labs(x="Yards Gained",
-       y = "Prop of Passing Plays")
+       y = "Prop of Plays")
 
 yards_gained_dens <- nfl_passing_plays %>%
   mutate(complete_pass = case_when(
@@ -94,7 +94,7 @@ yards_gained_dens <- nfl_passing_plays %>%
   theme(legend.title = element_blank()) +
   scale_color_manual(values = c("darkblue", "darkorange")) +
   labs(x="Yards Gained",
-       y = "Num of Passing Plays")
+       y = "Num of Plays")
 
 yards_gained_ecdf <- nfl_passing_plays %>%
   mutate(complete_pass = case_when(
@@ -108,11 +108,11 @@ yards_gained_ecdf <- nfl_passing_plays %>%
   theme(legend.title = element_blank()) +
   scale_color_manual(values = c("darkblue", "darkorange")) +
   labs(x="Yards Gained",
-       y = "Prop of Passing Plays")
+       y = "Prop of Plays")
 
-((yards_gained_dens_total + yards_gained_ecdf_total) / (yards_gained_dens + 
-  theme(legend.position = "none") + yards_gained_ecdf)) + plot_layout(guides="collect") +
-  plot_annotation(title="Passing Plays Don't Get Many Yards", caption = "Data courtesy of nflfastR")
+((yards_gained_dens_total + theme(axis.title.x = element_blank())+ yards_gained_dens + theme(axis.title.y = element_blank(), axis.title.x = element_blank(), legend.position = "none")) / 
+    ( yards_gained_ecdf_total + yards_gained_ecdf + theme(axis.title.y = element_blank()))) + 
+  plot_layout(guides="collect") + plot_annotation(title="Passing Plays Don't Get Many Yards", caption = "Data courtesy of nflfastR")
 
 #conclusion: the first 50% of observed passing plays only gets you a few yards (because there 
   # are so many incomplete plays. Of the complete plays, 50% get you 10/15 yards)
@@ -130,8 +130,10 @@ nfl_passing_plays_total_hits_and_epa <- nfl_passing_plays %>%
 nfl_passing_plays_total_hits_and_epa %>%
   ggplot(aes(x=total_throws)) +
   stat_ecdf()+
-  geom_vline(xintercept = 5, linetype = "dashed", color = "darkred")
-  theme_bw()
+  geom_vline(xintercept = 5, linetype = "dashed", color = "darkred")+
+  theme_bw()+
+  labs(x = "Total Throws",
+       y = "Proportion")
 #~37.5% of data threw less than 5 times
   
 nfl_passing_plays_total_hits_and_epa_over5 <- nfl_passing_plays_total_hits_and_epa %>%
