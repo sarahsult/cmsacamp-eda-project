@@ -330,3 +330,91 @@ nfl_passing_plays %>%
 
 
 
+nfl_density_compare <- nfl_passing_plays %>%
+  ggplot(aes(x = yards_gained,
+             color = as.factor(complete_pass))) +
+  geom_density() +
+  geom_rug(alpha = 0.3) +
+  theme_bw() +
+  labs(x = "Yards Gained",
+       y = "Number of Passing Plays") +
+  scale_color_manual(values = c("darkblue","darkorange")) +
+  theme(
+    axis.title.y = element_blank(),
+    axis.title.x = element_blank(),
+    plot.background = element_rect(fill = "grey95"),
+    panel.background = element_rect(fill = "grey95"),
+    legend.background = element_rect(fill = "grey95"),
+    legend.key = element_rect(fill = "grey95"),
+    panel.grid.minor = element_blank(),
+    text = element_text(family = "Century", size = 12),
+    plot.title = element_text(size = 17),
+    axis.text.x = element_text(size = 8),
+    legend.position = "none"
+  )
+nfl_ecdf_compare <- nfl_passing_plays %>%
+  mutate(complete_pass = case_when(
+    complete_pass == 0 ~ "Incomplete Pass",
+    TRUE ~ "Complete Pass"
+  )) %>%
+  ggplot(aes(x = yards_gained,
+             color = as.factor(complete_pass))) +
+  stat_ecdf() +
+  geom_rug(alpha = 0.3) +
+  theme_bw() +
+  labs(x = "Yards Gained",
+       y = "Proportion of Plays") +
+  scale_color_manual(values = c("darkblue","darkorange")) +
+  theme(
+    axis.title.y = element_blank(),
+    plot.background = element_rect(fill = "grey95"),
+    panel.background = element_rect(fill = "grey95"),
+    legend.background = element_rect(fill = "grey95"),
+    legend.key = element_rect(fill = "grey95"),
+    panel.grid.minor = element_blank(),
+    text = element_text(family = "Century", size = 12),
+    plot.title = element_text(size = 17),
+    axis.text.x = element_text(size = 8),
+    legend.title = element_blank()
+  )
+nfl_density <- nfl_passing_plays %>%
+  ggplot(aes(x = yards_gained)) +
+  geom_density() +
+  geom_rug(alpha = 0.3) +
+  theme_bw() +
+  labs(x = "Yards Gained",
+       y = "Number of Plays") +
+  theme(
+    axis.title.x = element_blank(),
+    plot.background = element_rect(fill = "grey95"),
+    panel.background = element_rect(fill = "grey95"),
+    legend.background = element_rect(fill = "grey95"),
+    legend.key = element_rect(fill = "grey95"),
+    panel.grid.minor = element_blank(),
+    text = element_text(family = "Century", size = 12),
+    plot.title = element_text(size = 17),
+    axis.text.y = element_text(size = 3)
+  )
+nfl_ecdf <- nfl_passing_plays %>%
+  ggplot(aes(x = yards_gained)) +
+  stat_ecdf() +
+  geom_rug(alpha = 0.3) +
+  theme_bw() +
+  labs(x = "Yards Gained",
+       y = "Proportion of Plays") +
+  theme (
+    plot.background = element_rect(fill = "grey95"),
+    panel.background = element_rect(fill = "grey95"),
+    legend.background = element_rect(fill = "grey95"),
+    legend.key = element_rect(fill = "grey95"),
+    panel.grid.minor = element_blank(),
+    text = element_text(family = "Century", size = 12),
+    plot.title = element_text(size = 17),
+    axis.text.x = element_text(size = 8)
+  )
+nfl_density + nfl_density_compare + nfl_ecdf + nfl_ecdf_compare + plot_layout(guides = 'collect')
+
+
+
+
+

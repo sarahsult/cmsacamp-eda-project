@@ -78,15 +78,12 @@ class: inverse center middle
     *   Description about the play
 
 ---
+#Example Table of Data
 
 <span style="color: white;">
 Filling up space </span>
 
-<span style="color: white;">
-Filling up space </span>
 
-<span style="color: white;">
-Filling up space </span>
 
 
 ```{r, echo=FALSE, fig.align='center'}
@@ -169,8 +166,7 @@ nfl_passing_plays %>%
 #Passing Plays Don't Get Many Yards
 
 ```{r, echo = FALSE}
-((yards_gained_dens_total + theme(axis.title.x = element_blank())+ yards_gained_dens + theme(axis.title.y = element_blank(), axis.title.x = element_blank(), legend.position = "none")) /( yards_gained_ecdf_total + yards_gained_ecdf + theme(axis.title.y = element_blank()))) + 
-  plot_layout(guides="collect") + plot_annotation(caption = "Data courtesy of nflfastR")
+nfl_density + nfl_density_compare + nfl_ecdf + nfl_ecdf_compare + plot_layout(guides = 'collect') + plot_annotation(caption = "Data courtesy of nflfastR") 
 
 ```
 
@@ -199,15 +195,28 @@ nfl_passing_plays_total_hits_and_epa %>%
 
 ```{r, echo = FALSE}
 nfl_passing_plays_total_hits_and_epa_over5 %>%
-  mutate(player_clusters = as.factor(cutree(hits_epa_complete_hclust, k=3)),) %>%
-  ggplot(aes(x=total_hits, y=total_epa, color = player_clusters))+
-  geom_point(alpha = .75)+
-  theme_bw()+
-  theme(legend.position = "bottom")+
+  mutate(play_clusters = as.factor(cutree(hits_epa_complete_hclust, k = 3)),) %>%
+  ggplot(aes(x = total_hits, y = total_epa, color = play_clusters)) +
+  geom_point(alpha = 0.75) +
+  theme_bw() +
+  theme(legend.position = "bottom") +
   ggthemes::scale_color_colorblind()+
-  labs(x = "Total Hits",
-       y = "Total Expected Points Added",
-       caption = "Data courtesy of nflfastR")
+  theme(
+    plot.background = element_rect(fill = "grey95"),
+    panel.background = element_rect(fill = "grey95"),
+    legend.background = element_rect(fill = "grey95"),
+    legend.key = element_rect(fill = "grey95"),
+    panel.grid.minor = element_blank(),
+    text = element_text(family = "Century", size = 12),
+    plot.title = element_text(size = 17),
+    axis.text.x = element_text(size = 8)
+  ) +
+  labs (
+    y = "Total Expected Points Added",
+    x = "Total Hits",
+    caption = "Data courtesy of nflfastR",
+    color = "Player Clusters"
+  )
 
 ```
 ---
