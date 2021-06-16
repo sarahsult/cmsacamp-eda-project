@@ -212,5 +212,19 @@ nfl_passing_plays_total_hits_and_epa_over5 %>%
 ```
 ---
 #Conclusions
-*   What we discovered...
-*   What else we might want to investigate...
+*   Evaluated the offensive line based on total quarterback hits and sacks
+--
+
+  *   Couldn't evaluate overall since we only had passing plays
+--
+
+*   Investigated relationship between when a thrower is hit and if they are more likely to throw an interception
+--
+
+*   Density of yards gained
+--
+
+*   Clustering based on total hits and total expected points added
+--
+
+  *   Could have used a different combination of variables or added a third dimension
