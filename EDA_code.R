@@ -26,12 +26,23 @@ nfl_passing_plays %>%
 
 #2D: KEEPING!! if a QB is hit are they more likely to throw an interception -------------------
 #Hypothesis: if QB is hit --> more likely to throw interception
+
+#need these row numbers to do conditional probability
+nfl_complete <- nfl_passing_plays %>%
+  filter(complete_pass == 1)
+
+nfl_not_complete <- nfl_passing_plays %>%
+  filter(complete_pass == 0)
+
 nfl_passing_plays %>%  
   filter(sack != 1) %>%                 #remove sacks because it artificially inflates 
                                       #the value of hit/no interception
   group_by(qb_hit, interception, complete_pass) %>%
   summarize(count = n(),
-            joint_prob = count / nrow(nfl_passing_plays)) %>%
+            joint_prob = case_when(
+              complete_pass == 0 ~ count/nrow(nfl_not_complete),
+              TRUE ~ count/nrow(nfl_complete)
+              )) %>%
   ungroup() %>%
   mutate(qb_hit_name = case_when(
     qb_hit == 0 ~ "No hit",
@@ -392,8 +403,7 @@ nfl_density <- nfl_passing_plays %>%
     legend.key = element_rect(fill = "grey95"),
     panel.grid.minor = element_blank(),
     text = element_text(family = "Century", size = 12),
-    plot.title = element_text(size = 17),
-    axis.text.y = element_text(size = 3)
+    plot.title = element_text(size = 17)
   )
 nfl_ecdf <- nfl_passing_plays %>%
   ggplot(aes(x = yards_gained)) +
